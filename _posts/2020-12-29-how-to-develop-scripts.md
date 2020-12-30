@@ -64,9 +64,10 @@ Nervos CKB 是一条基于 PoW 的 layer1 公链，其 Cell 模型是比特币 U
 ```c
 #include "ckb_syscalls.h"
 
-// We are limiting the script size loaded to be 32KB at most. This should be
-// more than enough. We are also using blake2b with 256-bit hash here, which is
-// the same as CKB.
+// We are limiting the script size loaded to be 32KB at most.
+// This should be more than enough.
+// We are also using blake2b with 256-bit hash here,
+// which is the same as CKB.
 #define BLAKE2B_BLOCK_SIZE 32
 #define SCRIPT_SIZE 32768
 
@@ -74,7 +75,8 @@ Nervos CKB 是一条基于 PoW 的 layer1 公链，其 Cell 模型是比特币 U
 #define ERROR_SCRIPT_TOO_LONG -21
 
 int main() {
-  // First, let's load current running script, so we can extract owner lock script hash from script args.
+  // First, let's load current running script,
+  // so we can extract owner lock script hash from script args.
 
   unsigned char script[SCRIPT_SIZE];
   uint64_t len = SCRIPT_SIZE;
@@ -163,16 +165,23 @@ let cell_input = load_cell(0, Source::Input)?
 // Call the output of index 0
 let cell_output = load_cell(0, Source::Output)?
 
-// Filter inputs whose lock script hash is equal to the given lock hash and calculate the sum of inputs' capacity
+// Filter inputs whose lock script hash is equal to the given
+// lock hash and calculate the sum of inputs' capacity
 let cell_inputs = QueryIter::new(load_cell, Source::Input)
-            .position(|cell| &hash::blake2b(cell.lock().as_slice()) == lock_hash)
-let inputs_sum_capacity = cell_inputs.into_iter().fold(0, |sum, c| sum + c.capacity().unpack())
+      .position(|cell| &hash::blake2b(cell.lock().as_slice())
+      == lock_hash)
 
-// Check if there is an output with lock script hash equal to the given lock hash
+let inputs_sum_capacity = cell_inputs.into_iter()
+      .fold(0, |sum, c| sum + c.capacity().unpack())
+
+// Check if there is an output with lock script hash equal to
+// the given lock hash
 let has_output = QueryIter::new(load_cell, Source::Output)
-            .any(|cell| &hash::blake2b(cell.lock().as_slice()) == lock_hash)
+      .any(|cell| &hash::blake2b(cell.lock().as_slice())
+      == lock_hash)
 
-// Check whether the witness args' lock is none of witness whose index in witnesses is 0
+// Check whether the witness args' lock is none of witness
+// whose index in witnesses is 0
 match load_witness_args(0, Source::Input) {
   Ok(witness_args) => {
     if witness_args.lock().to_opt().is_none() {
@@ -186,7 +195,7 @@ match load_witness_args(0, Source::Input) {
 
 ```
 
-如果需要在合约中验证签名，[ckb-dynamic-loading-secp256k1](https://github.com/jjyr/ckb-dynamic-loading-secp256k1) 给出了如何通过 rust 代码调用系统 Secp256k1 的 C 代码，[ckb-dynamic-loading-rsa](https://github.com/XuJiandong/ckb-dynamic-loading-rsa) 给出了如何通过 rust 代码调用 RSA 签名算法的 C 代码。
+如果需要在合约中验证签名，[ckb-dynamic-loading-secp256k1](https://github.com/jjyr/ckb-dynamic-loading-secp256k1) 给出了如何通过 Rust 代码调用系统 Secp256k1 的 C 代码，[ckb-dynamic-loading-rsa](https://github.com/XuJiandong/ckb-dynamic-loading-rsa) 给出了如何通过 Rust 代码调用 RSA 签名算法的 C 代码。
 
 更多关于 Capsule 开发智能合约的例子可以参考以下项目：
 
@@ -196,7 +205,7 @@ match load_witness_args(0, Source::Input) {
 
 ### 调试
 
-在合约开发过程中遇到不符合预期的错误是很常见的，比较常见的调试方式是在合约中打印日志，`ckb-std` 提供了 `debug!` ，其用法类似于 rust 语言中的 `print!` ，而在合约的 tests 中，可以直接使用 `print!` 和 `println!` 来打印。
+在合约开发过程中遇到不符合预期的错误是很常见的，比较常见的调试方式是在合约中打印日志，`ckb-std` 提供了 `debug!` ，其用法类似于 Rust 语言中的 `print!` ，而在合约的 tests 中，可以直接使用 `print!` 和 `println!` 来打印。
 
 ### 测试
 
@@ -210,17 +219,23 @@ TYPE ID 以及 dep_group 等部署方式可以在 `deployment.toml` 文件中配
 
 ## 常见错误
 
-合约在开发过程中，难免会遇到各种各样的错误，如何快速定位问题并修复就显得很重要了，如果你的合约中用到了 CKB 的系统合约，例如 `secp256k1_blake160_sighash_all`、`secp256k1_blake160_multisig_all` 或者 Nervos DAO，那么你可以参考系统合约错误码以及相应的错误解释来快速定位问题，错误码详情参考 [Error Codes](https://github.com/nervosnetwork/ckb-system-scripts/wiki/Error-codes)。
+合约在开发过程中，难免会遇到各种各样的错误，如何快速定位问题并修复就显得很重要了，如果你的合约中用到了 CKB 的系统合约，例如 `secp256k1_blake160_sighash_all`、`secp256k1_blake160_multisig_all` 或者 Nervos DAO，那么你可以参考系统合约错误码以及相应的错误解释来快速定位问题。
 
 比较常见的错误有：
 
 - 1： 数组越界，检查是否访问了超过数组长度的索引
 - 2： 缺少某项数据，例如某个 Cell 需要有 type script，但是在拼装交易的时候漏掉了
-- -1： 参数长度错误，有可能是 script args 或者 signature 长度不对
-- -2： 编码异常，检查 Cell 和 Transaction 的数据是否符合 molecule 要求，比如多了或者少了 0x，hex string 长度为奇数等等
+- -1： 参数长度错误，有可能是 `script args` 或者 signature 长度不对
+- -2： 编码异常，检查 Cell 和 Transaction 的数据是否符合 molecule 要求，比如多了或者少了 `0x`，`hex string` 长度为奇数等等
 - -101 ~ -103：Secp256k1 验签失败，检查合约和 Transaction Witnesses 以及 Script 参数是否正确
 
-当然还有很多系统合约错误，上面只是列举了比较常见的错误类型，详情可以参考 [Error Codes](https://github.com/nervosnetwork/ckb-system-scripts/wiki/Error-codes)。
+- `InvalidCodeHash`: Script Code Hash 无效，检查 `code hash` 是否正确，以及 `cell deps` 是否包含了该 `code hash` 对应的 `cell dep`
+- `ExceededMaximumCycles`: 合约消耗的 Cycles 数量已经超过了最大上限
+- `CapacityOverflow`: Capacity 溢出，请检查 outputs 的 capacity 总和是否大于 inputs 的 capacity 总和
+- `InsufficientCellCapacity`: Cell 数据实际占用的字节数大于当前 Cell 的 capacity（capacity 代表 Cell 能承载的数据的字节数）
+- `Immature`: 由于 input since 不为零，当前 input 还不能被消费
+
+当然还有很多系统合约错误，上面只是列举了比较常见的错误类型，详情可以参考 [Error Codes](https://github.com/nervosnetwork/ckb-system-scripts/wiki/Error-codes) 、[Verification Error](https://github.com/nervosnetwork/ckb/blob/develop/verification/src/error.rs) 和 [Script Error](https://github.com/nervosnetwork/ckb/blob/develop/script/src/error.rs)。
 
 除了系统合约的错误码，对于特定的业务合约也会有自己的错误码，这个时候就需要去看定义在业务合约中的错误码，定位可能出错的地方，例如 [ckb-cheque-script error code](https://github.com/duanyytop/ckb-cheque-script/blob/main/contracts/ckb-cheque-script/src/error.rs)。
 
