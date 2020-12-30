@@ -214,11 +214,11 @@ TYPE ID 以及 dep_group 等部署方式可以在 `deployment.toml` 文件中配
 
 比较常见的错误有：
 
-1： 数组越界，检查是否访问了超过数组长度的索引
-2： 缺少某项数据，例如某个 Cell 需要有 type script，但是在拼装交易的时候漏掉了
--1： 参数长度错误，有可能是 script args 或者 signature 长度不对
--2： 编码异常，检查 Cell 和 Transaction 的数据是否符合 molecule 要求，比如多了或者少了 0x，hex string 长度为奇数等等
--101 ~ -103：Secp256k1 验签失败，检查合约和 Transaction Witnesses 以及 Script 参数是否正确
+- 1： 数组越界，检查是否访问了超过数组长度的索引
+- 2： 缺少某项数据，例如某个 Cell 需要有 type script，但是在拼装交易的时候漏掉了
+- -1： 参数长度错误，有可能是 script args 或者 signature 长度不对
+- -2： 编码异常，检查 Cell 和 Transaction 的数据是否符合 molecule 要求，比如多了或者少了 0x，hex string 长度为奇数等等
+- -101 ~ -103：Secp256k1 验签失败，检查合约和 Transaction Witnesses 以及 Script 参数是否正确
 
 当然还有很多系统合约错误，上面只是列举了比较常见的错误类型，详情可以参考 [Error Codes](https://github.com/nervosnetwork/ckb-system-scripts/wiki/Error-codes)。
 
