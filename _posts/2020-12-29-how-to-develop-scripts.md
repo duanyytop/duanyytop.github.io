@@ -190,9 +190,9 @@ match load_witness_args(0, Source::Input) {
 
 更多关于 Capsule 开发智能合约的例子可以参考以下项目：
 
-- https://github.com/jjyr/my-sudt
-- https://github.com/duanyytop/ckb-cheque-script
-- https://github.com/duanyytop/ckb-passport-lock
+- [my-sudt](https://github.com/jjyr/my-sudt)
+- [ckb-cheque-script](https://github.com/duanyytop/ckb-cheque-script)
+- [ckb-passport-lock](https://github.com/duanyytop/ckb-passport-lock)
 
 ### 调试
 
